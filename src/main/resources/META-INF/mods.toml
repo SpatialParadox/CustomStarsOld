@@ -1,0 +1,24 @@
+modLoader="javafml" #mandatory
+loaderVersion="[36,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="agpl-3.0"
+
+[[mods]] #mandatory
+modId="customstars" #mandatory
+version="${version}" #mandatory
+displayName="Custom Stars" #mandatory
+credits="b3spectacled (Fabric/original version)" #optional
+authors="Condolence" #optional
+description='''A mod allowing you to configure the number of stars and the size of them.'''
+
+[[dependencies.customstars]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${mc_version}"
+    side="BOTH"
+
+[[dependencies.customstars]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE"
+    side="BOTH"

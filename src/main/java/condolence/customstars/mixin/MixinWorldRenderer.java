@@ -24,6 +24,7 @@ import java.util.Random;
 public class MixinWorldRenderer {
     @Shadow private VertexBuffer starBuffer;
     @Shadow private VertexFormat skyFormat;
+    private final Random noiseRandom = new Random(1L); // We want the seed to be constant here, so just use 1
 
     @Inject(method = "drawStars(Lnet/minecraft/client/renderer/BufferBuilder;)V", at = @At("HEAD"), cancellable = true)
     public void injectRenderStarsWithNoise(BufferBuilder buffer, CallbackInfo info) {
@@ -63,15 +64,13 @@ public class MixinWorldRenderer {
 
     @Unique
     private void renderStarsWithNoise(BufferBuilder buffer) {
-        Random worldRandom = new Random();
-        OctaveSimplexNoise noiseGenerator = new OctaveSimplexNoise(worldRandom, 3);
+        OctaveSimplexNoise noiseGenerator = new OctaveSimplexNoise(noiseRandom, 3);
 
         int starCount = CustomStarsConfig.starCount;
         double baseSize = CustomStarsConfig.baseSize;
         double maxSizeMultiplier = CustomStarsConfig.maxSizeMultiplier;
         double noiseThreshold = CustomStarsConfig.noiseThreshold;
 
-        System.out.println("Star count:" + starCount);
         double[] ipts = new double[starCount];
         double[] jpts = new double[starCount];
         double[] kpts = new double[starCount];
@@ -80,13 +79,13 @@ public class MixinWorldRenderer {
         // the rest will use vanilla randomisation (world gen)
         int stars = 0;
         while (stars < (int) Math.floor(starCount * CustomStarsConfig.noisePercentage / 100D)) {
-            double i = worldRandom.nextFloat() * 2.0f - 1.0f;
-            double j = worldRandom.nextFloat() * 2.0f - 1.0f;
-            double k = worldRandom.nextFloat() * 2.0f - 1.0f;
+            double i = noiseRandom.nextFloat() * 2.0f - 1.0f;
+            double j = noiseRandom.nextFloat() * 2.0f - 1.0f;
+            double k = noiseRandom.nextFloat() * 2.0f - 1.0f;
 
             double weight = noiseGenerator.generate(i, j, k);
 
-            if (weight + worldRandom.nextDouble() * 0.2 > noiseThreshold) {
+            if (weight + noiseRandom.nextDouble() * 0.2 > noiseThreshold) {
                 ipts[stars] = i;
                 jpts[stars] = j;
                 kpts[stars] = k;
@@ -96,9 +95,9 @@ public class MixinWorldRenderer {
         }
 
         while (stars < starCount) {
-            ipts[stars] = worldRandom.nextFloat() * 2.0f - 1.0f;
-            jpts[stars] = worldRandom.nextFloat() * 2.0f - 1.0f;
-            kpts[stars] = worldRandom.nextFloat() * 2.0f - 1.0f;
+            ipts[stars] = noiseRandom.nextFloat() * 2.0f - 1.0f;
+            jpts[stars] = noiseRandom.nextFloat() * 2.0f - 1.0f;
+            kpts[stars] = noiseRandom.nextFloat() * 2.0f - 1.0f;
 
             stars++;
         }
@@ -110,7 +109,7 @@ public class MixinWorldRenderer {
             double double7 = jpts[i];
             double double9 = kpts[i];
 
-            double double11 = baseSize + worldRandom.nextFloat() * maxSizeMultiplier;
+            double double11 = baseSize + noiseRandom.nextFloat() * maxSizeMultiplier;
             double double13 = double5 * double5 + double7 * double7 + double9 * double9;
             if (double13 < 1.0 && double13 > 0.01) {
                 double13 = 1.0 / Math.sqrt(double13);
@@ -126,7 +125,7 @@ public class MixinWorldRenderer {
                 double double27 = Math.atan2(Math.sqrt(double5 * double5 + double9 * double9), double7);
                 double double29 = Math.sin(double27);
                 double double31 = Math.cos(double27);
-                double double33 = worldRandom.nextDouble() * 3.141592653589793 * 2.0;
+                double double33 = noiseRandom.nextDouble() * 3.141592653589793 * 2.0;
                 double double35 = Math.sin(double33);
                 double double37 = Math.cos(double33);
                 for (int v = 0; v < 4; ++v) {
